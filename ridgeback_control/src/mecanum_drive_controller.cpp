@@ -45,7 +45,7 @@
 #include <mecanum_drive_controller/mecanum_drive_controller.h>
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-static bool isCylinderOrSphere(const boost::shared_ptr<const urdf::Link>& link)
+static bool isCylinderOrSphere(const urdf::LinkConstSharedPtr& link)
 {
   if(!link)
   {
@@ -354,31 +354,31 @@ bool MecanumDriveController::setWheelParamsFromUrdf(ros::NodeHandle& root_nh,
       return false;
     }
 
-    boost::shared_ptr<urdf::ModelInterface> model(urdf::parseURDF(robot_model_str));
+    urdf::ModelInterfaceSharedPtr model(urdf::parseURDF(robot_model_str));
 
     // Get wheels position and compute parameter k_ (used in mecanum wheels IK).
-    boost::shared_ptr<const urdf::Joint> wheel0_urdfJoint(model->getJoint(wheel0_name));
+    urdf::JointConstSharedPtr wheel0_urdfJoint(model->getJoint(wheel0_name));
     if(!wheel0_urdfJoint)
     {
       ROS_ERROR_STREAM_NAMED(name_, wheel0_name
                              << " couldn't be retrieved from model description");
       return false;
     }
-    boost::shared_ptr<const urdf::Joint> wheel1_urdfJoint(model->getJoint(wheel1_name));
+    urdf::JointConstSharedPtr wheel1_urdfJoint(model->getJoint(wheel1_name));
     if(!wheel1_urdfJoint)
     {
       ROS_ERROR_STREAM_NAMED(name_, wheel1_name
                              << " couldn't be retrieved from model description");
       return false;
     }
-    boost::shared_ptr<const urdf::Joint> wheel2_urdfJoint(model->getJoint(wheel2_name));
+    urdf::JointConstSharedPtr wheel2_urdfJoint(model->getJoint(wheel2_name));
     if(!wheel2_urdfJoint)
     {
       ROS_ERROR_STREAM_NAMED(name_, wheel2_name
                              << " couldn't be retrieved from model description");
       return false;
     }
-    boost::shared_ptr<const urdf::Joint> wheel3_urdfJoint(model->getJoint(wheel3_name));
+    urdf::JointConstSharedPtr wheel3_urdfJoint(model->getJoint(wheel3_name));
     if(!wheel3_urdfJoint)
     {
       ROS_ERROR_STREAM_NAMED(name_, wheel3_name
@@ -413,6 +413,15 @@ bool MecanumDriveController::setWheelParamsFromUrdf(ros::NodeHandle& root_nh,
       wheels_k_ = (-(-wheel0_x - wheel0_y) - (wheel1_x - wheel1_y) + (-wheel2_x - wheel2_y) + (wheel3_x - wheel3_y))
                   / 4.0;
     }
+    else
+    {
+      ROS_INFO_STREAM("Wheel seperation in X: " << wheel_separation_x_);
+      ROS_INFO_STREAM("Wheel seperation in Y: " << wheel_separation_y_);
+
+      // The seperation is the total distance between the wheels in X and Y.
+
+      wheels_k_ = (wheel_separation_x_ + wheel_separation_y_) / 2.0;
+    }
 
     if (lookup_wheel_radius)
     {
@@ -442,15 +451,6 @@ bool MecanumDriveController::setWheelParamsFromUrdf(ros::NodeHandle& root_nh,
       wheels_radius_ = wheel0_radius;
     }
   }
-  else
-  {
-    ROS_INFO_STREAM("Wheel seperation in X: " << wheel_separation_x_);
-    ROS_INFO_STREAM("Wheel seperation in Y: " << wheel_separation_y_);
-
-    // The seperation is the total distance between the wheels in X and Y.
-
-    wheels_k_ = (wheel_separation_x_ + wheel_separation_y_) / 2.0;
-  }
 
   ROS_INFO_STREAM("Wheel radius: " << wheels_radius_);
 
@@ -461,15 +461,15 @@ bool MecanumDriveController::setWheelParamsFromUrdf(ros::NodeHandle& root_nh,
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-bool MecanumDriveController::getWheelRadius(const boost::shared_ptr<urdf::ModelInterface> model,
-                                            const boost::shared_ptr<const urdf::Link>& wheel_link, double& wheel_radius)
+bool MecanumDriveController::getWheelRadius(const urdf::ModelInterfaceSharedPtr model,
+                                            const urdf::LinkConstSharedPtr& wheel_link, double& wheel_radius)
 {
-  boost::shared_ptr<const urdf::Link> radius_link = wheel_link;
+  urdf::LinkConstSharedPtr radius_link = wheel_link;
 
   if (use_realigned_roller_joints_)
   {
       // This mode is used when the mecanum wheels are simulated and we use realigned rollers to mimic mecanum wheels.
-      const boost::shared_ptr<const urdf::Joint>& roller_joint = radius_link->child_joints[0];
+      const urdf::JointConstSharedPtr& roller_joint = radius_link->child_joints[0];
       if(!roller_joint)
       {
         ROS_ERROR_STREAM_NAMED(name_, "No roller joint could be retrieved for wheel : " << wheel_link->name <<
