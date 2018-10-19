@@ -39,7 +39,7 @@ TEST(MecanumDriveControllerTest, calculateInverseKinematicNormalConfiguration)
   double b = 0.5;
   double r = 0.1;
 
-  // Forward in x
+  // Positive in x
   MecanumDriveController::WheelVelocities velocities;
 
   velocities = MecanumDriveController::calculateIkNormal(1, 0, 0, r, a, b);
@@ -47,20 +47,20 @@ TEST(MecanumDriveControllerTest, calculateInverseKinematicNormalConfiguration)
   EXPECT_DOUBLE_EQ(velocities.w1_vel, 10);
   EXPECT_DOUBLE_EQ(velocities.w2_vel, 10);
   EXPECT_DOUBLE_EQ(velocities.w3_vel, 10);
-  // Backwards in x
+  // Negative in x
   velocities = MecanumDriveController::calculateIkNormal(-1, 0, 0, r, a, b);
   EXPECT_DOUBLE_EQ(velocities.w0_vel, -10);
   EXPECT_DOUBLE_EQ(velocities.w1_vel, -10);
   EXPECT_DOUBLE_EQ(velocities.w2_vel, -10);
   EXPECT_DOUBLE_EQ(velocities.w3_vel, -10);
 
-  // Forward in y
+  // Positive in y
   velocities = MecanumDriveController::calculateIkNormal(0, 1, 0, r, a, b);
   EXPECT_DOUBLE_EQ(velocities.w0_vel, -10);
   EXPECT_DOUBLE_EQ(velocities.w1_vel, 10);
   EXPECT_DOUBLE_EQ(velocities.w2_vel, -10);
   EXPECT_DOUBLE_EQ(velocities.w3_vel, 10);
-  // Backwards in y
+  // Negative in y
   velocities = MecanumDriveController::calculateIkNormal(0, -1, 0, r, a, b);
   EXPECT_DOUBLE_EQ(velocities.w0_vel, 10);
   EXPECT_DOUBLE_EQ(velocities.w1_vel, -10);
@@ -81,7 +81,7 @@ TEST(MecanumDriveControllerTest, calculateInverseKinematicNormalConfiguration)
   EXPECT_DOUBLE_EQ(velocities.w3_vel, -15);
 }
 
-TEST(MecanumDriveControllerTest, calculateInverseKinematicFlippedConfiguration)
+TEST(MecanumDriveControllerTest, calculateInverseKinematicFlippedConfigurationX)
 {
   // The robot design is:
 
@@ -109,29 +109,64 @@ TEST(MecanumDriveControllerTest, calculateInverseKinematicFlippedConfiguration)
   double b = 1;
   double r = 0.1;
 
-  // IK equation used:
-  // Forward in x
+  // Positive in x (Forward)
   MecanumDriveController::WheelVelocities velocities;
   velocities = MecanumDriveController::calculateIkFlipped(1, 0, 0, r, a, b);
-  EXPECT_DOUBLE_EQ(velocities.w0_vel, 10);
-  EXPECT_DOUBLE_EQ(velocities.w1_vel, -10);
-  EXPECT_DOUBLE_EQ(velocities.w2_vel, -10);
-  EXPECT_DOUBLE_EQ(velocities.w3_vel, 10);
-
-  // Forward in x
-  velocities = MecanumDriveController::calculateIkFlipped(0, 1, 0, r, a, b);
   EXPECT_DOUBLE_EQ(velocities.w0_vel, -10);
   EXPECT_DOUBLE_EQ(velocities.w1_vel, -10);
   EXPECT_DOUBLE_EQ(velocities.w2_vel, 10);
   EXPECT_DOUBLE_EQ(velocities.w3_vel, 10);
 
-  // Possitive rotation
+  // Negative in x (back)
+  velocities = MecanumDriveController::calculateIkFlipped(-1, 0, 0, r, a, b);
+  EXPECT_DOUBLE_EQ(velocities.w0_vel, 10);
+  EXPECT_DOUBLE_EQ(velocities.w1_vel, 10);
+  EXPECT_DOUBLE_EQ(velocities.w2_vel, -10);
+  EXPECT_DOUBLE_EQ(velocities.w3_vel, -10);
+}
+
+TEST(MecanumDriveControllerTest, calculateInverseKinematicFlippedConfigurationY)
+{
+  double a = 0.5;
+  double b = 1;
+  double r = 0.1;
+  MecanumDriveController::WheelVelocities velocities;
+
+  // Positive in y (right)
+  velocities = MecanumDriveController::calculateIkFlipped(0, 1, 0, r, a, b);
+  EXPECT_DOUBLE_EQ(velocities.w0_vel, 10);
+  EXPECT_DOUBLE_EQ(velocities.w1_vel, -10);
+  EXPECT_DOUBLE_EQ(velocities.w2_vel, -10);
+  EXPECT_DOUBLE_EQ(velocities.w3_vel, 10);
+
+  // Negative in y (left)
+  velocities = MecanumDriveController::calculateIkFlipped(0, -1, 0, r, a, b);
+  EXPECT_DOUBLE_EQ(velocities.w0_vel, -10);
+  EXPECT_DOUBLE_EQ(velocities.w1_vel, 10);
+  EXPECT_DOUBLE_EQ(velocities.w2_vel, 10);
+  EXPECT_DOUBLE_EQ(velocities.w3_vel, -10);
+}
+
+TEST(MecanumDriveControllerTest, calculateInverseKinematicFlippedConfigurationRotations)
+{
+  double a = 0.5;
+  double b = 1;
+  double r = 0.1;
+  MecanumDriveController::WheelVelocities velocities;
+
+  // Positive rotation (clockwise)
   velocities = MecanumDriveController::calculateIkFlipped(0, 0, 1, r, a, b);
+  EXPECT_DOUBLE_EQ(velocities.w0_vel, -5);
+  EXPECT_DOUBLE_EQ(velocities.w1_vel, -5);
+  EXPECT_DOUBLE_EQ(velocities.w2_vel, -5);
+  EXPECT_DOUBLE_EQ(velocities.w3_vel, -5);
+
+  // Negative rotation (counter closwise)
+  velocities = MecanumDriveController::calculateIkFlipped(0, 0, -1, r, a, b);
   EXPECT_DOUBLE_EQ(velocities.w0_vel, 5);
   EXPECT_DOUBLE_EQ(velocities.w1_vel, 5);
   EXPECT_DOUBLE_EQ(velocities.w2_vel, 5);
   EXPECT_DOUBLE_EQ(velocities.w3_vel, 5);
-
 }
 
 }

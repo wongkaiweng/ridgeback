@@ -206,18 +206,18 @@ MecanumDriveController::WheelVelocities MecanumDriveController::calculateIkFlipp
                                                                                    double wheels_b)
 {
   MecanumDriveController::WheelVelocities wheel_velocities;
-  // Replaces the B matrix
-  double vx = linY;
-  double vy = -linX;
+  // Do not rotate velocities
+  double vx = linX;
+  double vy = linY;
 
   // Calculate the wheels geometric constant
   double wheels_k = std::sqrt(wheels_a * wheels_a + wheels_b * wheels_b) * sin(M_PI_4 - atan2(wheels_b, wheels_a));
   double k = sqrt(2)/2;
 
-  wheel_velocities.w0_vel = -(std::sqrt(2) / wheels_radius) * (k * vx + k * vy + wheels_k * ang);
-  wheel_velocities.w1_vel = -(std::sqrt(2) / wheels_radius) * (k * vx - k * vy + wheels_k * ang);
-  wheel_velocities.w2_vel = -(std::sqrt(2) / wheels_radius) * (-1 * k * vx - k * vy + wheels_k * ang);
-  wheel_velocities.w3_vel = -(std::sqrt(2) / wheels_radius) * (-1 * k * vx + k * vy + wheels_k * ang);
+  wheel_velocities.w0_vel = (std::sqrt(2) / wheels_radius) * (-1 * k * vx + k * vy + wheels_k * ang);
+  wheel_velocities.w1_vel = (std::sqrt(2) / wheels_radius) * (-1 * k * vx - k * vy + wheels_k * ang);
+  wheel_velocities.w2_vel = (std::sqrt(2) / wheels_radius) * (k * vx - k * vy + wheels_k * ang);
+  wheel_velocities.w3_vel = (std::sqrt(2) / wheels_radius) * (k * vx + k * vy + wheels_k * ang);
   return wheel_velocities;
 }
 
